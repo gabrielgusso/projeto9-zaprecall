@@ -4,42 +4,11 @@ import questions from "./questions"
 import { useState } from "react"
 import play from "../assets/img/seta_play.png"
 import turn from "../assets/img/seta_virar.png"
+import iconGreen from "../assets/img/icone_certo.png"
+import iconYellow from "../assets/img/icone_quase.png"
+import iconRed from "../assets/img/icone_erro.png"
 
-export default function ScreenContainer() {
-  function Li({ question, numQuestion }) {
-    const [pQuestion, setpQustion] = useState(numQuestion)
-    const [bgColor, setBgColor] = useState("#FFFFFF")
-    const [questionHeigth, setQuestionHeight] = useState("35px")
-    const [icon, setIcon] = useState(play)
-    const [aling, setAlign] = useState('center')
-
-    return (
-      <>
-        <ClosedQuestion bg={bgColor} heigth={questionHeigth} align={aling}>
-          <p>{pQuestion}</p>
-          <img src={icon} alt={'icon'}
-            name="play-outline"
-            onClick={() => {
-              setBgColor("#FFFFD5")
-              setQuestionHeight("100px")
-              setpQustion(question)
-              setIcon(turn)
-              setAlign('flex-start')
-            }}
-          />
-        </ClosedQuestion>
-      </>
-    )
-  }
-
-
-    // const layout = []
-    // questions.forEach((e, index) => {
-    //   layout.push(<ClosedQuestion bg={bgColor} heigth={questionHeigth}>{e.question}</ClosedQuestion>)
-    // })
-  
-
-
+export default function ScreenContainer({ answerCounter, setAnswerCounter }) {
   return (
     <>
       <Screen>
@@ -48,11 +17,13 @@ export default function ScreenContainer() {
           <h1>ZapRecall</h1>
         </LogoContainer>
         <ul>
-          
           {questions.map((e, index) => (
             <Li
+              answerCounter={answerCounter}
+              setAnswerCounter={setAnswerCounter}
               key={index}
               question={e.question}
+              aswer={e.answer}
               numQuestion={"Pergunta " + (index + 1)}
             />
           ))}
@@ -62,9 +33,121 @@ export default function ScreenContainer() {
   )
 }
 
+function Li({ question, numQuestion, aswer, answerCounter, setAnswerCounter }) {
+  const [clickedQuestion, setClickedQuestion] = useState([])
+  const [seeAnswer, setSeeAnswer] = useState([])
+  const [colorAnswer, setColorAnswer] = useState([])
+
+  if (colorAnswer.questionObj === numQuestion) {
+    const { color, nameColor } = colorAnswer
+    if (nameColor === "red") {
+      return (
+        <AnsweredQuestion color={color}>
+          <p>{numQuestion}</p>
+          <img src={iconRed} alt="icon" />
+        </AnsweredQuestion>
+      )
+    }
+    if (nameColor === "yellow") {
+      return (
+        <AnsweredQuestion color={color}>
+          <p>{numQuestion}</p>
+          <img src={iconYellow} alt="icon" />
+        </AnsweredQuestion>
+      )
+    }
+    if (nameColor === "green") {
+      return (
+        <AnsweredQuestion color={color}>
+          <p>{numQuestion}</p>
+          <img src={iconGreen} alt="icon" />
+        </AnsweredQuestion>
+      )
+    }
+  }
+
+  if (seeAnswer[0] === numQuestion) {
+    return (
+      <OpenQuestion>
+        <p>{aswer}</p>
+        <ContainerButtons>
+          <button
+            className="colorRed"
+            onClick={() => {
+              setColorAnswer({
+                questionObj: numQuestion,
+                color: "#FF3030",
+                nameColor: "red",
+              })
+              setAnswerCounter([...answerCounter, iconRed])
+            }}
+          >
+            Não lembrei
+          </button>
+          <button
+            className="colorYellow"
+            onClick={() => {
+              setColorAnswer({
+                questionObj: numQuestion,
+                color: "#FF922E",
+                nameColor: "yellow",
+              })
+              setAnswerCounter([...answerCounter, iconYellow])
+            }}
+          >
+            Quase não lembrei
+          </button>
+          <button
+            className="colorGreen"
+            onClick={() => {
+              setColorAnswer({
+                questionObj: numQuestion,
+                color: "#2FBE34",
+                nameColor: "green",
+              })
+              setAnswerCounter([...answerCounter, iconGreen])
+            }}
+          >
+            Zap!
+          </button>
+        </ContainerButtons>
+      </OpenQuestion>
+    )
+  }
+
+  if (clickedQuestion[0] === numQuestion) {
+    return (
+      <OpenQuestion>
+        <p>{question}</p>
+        <img
+          src={turn}
+          alt="icon"
+          onClick={() => {
+            setSeeAnswer([numQuestion])
+          }}
+        />
+      </OpenQuestion>
+    )
+  }
+
+  return (
+    <>
+      <ClosedQuestion
+        onClick={() => {
+          if (clickedQuestion.length === 0) {
+            setClickedQuestion([numQuestion])
+          }
+        }}
+      >
+        <p>{numQuestion}</p>
+        <img src={play} alt="icon" name="play-outline" />
+      </ClosedQuestion>
+    </>
+  )
+}
+
 const Screen = styled.div`
   background-color: #fb6b6b;
-  /* width: 100vw; */
   min-height: 100vh;
   display: flex;
   flex-direction: column;
@@ -92,15 +175,16 @@ const LogoContainer = styled.div`
 
 const ClosedQuestion = styled.li`
   width: 300px;
-  height: ${(props) => props.heigth}; 
-  background-color: ${(props) => props.bg}; 
+  height: 35px;
+  background-color: #ffffff;
   margin: 12px;
   padding: 15px;
   box-shadow: 0px 4px 5px rgba(0, 0, 0, 0.15);
   border-radius: 5px;
   display: flex;
-  align-items: ${(props) => props.align};
+  align-items: center;
   justify-content: space-between;
+  cursor: pointer;
   p {
     font-family: "Recursive";
     font-style: normal;
@@ -109,28 +193,86 @@ const ClosedQuestion = styled.li`
     line-height: 19px;
     color: #333333;
   }
-  ion-icon {
-    font-size: 30px;
+`
+
+const OpenQuestion = styled.li`
+  width: 300px;
+  margin: 12px;
+  padding: 15px;
+  min-height: 100px;
+  background: #ffffd5;
+  box-shadow: 0px 4px 5px rgba(0, 0, 0, 0.15);
+  border-radius: 5px;
+  font-family: "Recursive";
+  font-style: normal;
+  font-weight: 400;
+  font-size: 18px;
+  line-height: 22px;
+  color: #333333;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  img {
+    position: absolute;
+    bottom: 10px;
+    right: 10px;
     cursor: pointer;
   }
 `
+const AnsweredQuestion = styled.li`
+  width: 300px;
+  height: 35px;
+  background-color: #ffffff;
+  margin: 12px;
+  padding: 15px;
+  box-shadow: 0px 4px 5px rgba(0, 0, 0, 0.15);
+  border-radius: 5px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  p {
+    font-family: "Recursive";
+    font-style: normal;
+    font-weight: 700;
+    font-size: 16px;
+    line-height: 19px;
+    color: ${(props) => props.color};
+    text-decoration: line-through;
+  }
+`
 
-// const OpenQuestion = styled.li`
-//   width: 300px;
-//   margin: 12px;
-//   padding: 15px;
-//   min-height: 100px;
-//   background: #ffffd5;
-//   box-shadow: 0px 4px 5px rgba(0, 0, 0, 0.15);
-//   border-radius: 5px;
-//   font-family: "Recursive";
-//   font-style: normal;
-//   font-weight: 400;
-//   font-size: 18px;
-//   line-height: 22px;
-//   color: #333333;
-//   position: relative;
-//   display: flex;
-//   flex-direction: column;
-//   justify-content: space-between;
-// `
+const ContainerButtons = styled.div`
+  width: 100%;
+  display: flex;
+  height: 50px;
+  margin-top: 20px;
+  justify-content: space-around;
+
+  button {
+    width: 90px;
+    font-family: "Recursive";
+    font-style: normal;
+    font-weight: 400;
+    font-size: 12px;
+    line-height: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    color: #ffffff;
+    border-radius: 5px;
+    border: none;
+    padding: 5px;
+    cursor: pointer;
+  }
+  .colorGreen {
+    background-color: #2fbe34;
+  }
+  .colorYellow {
+    background-color: #ff922e;
+  }
+  .colorRed {
+    background-color: #ff3030;
+  }
+`

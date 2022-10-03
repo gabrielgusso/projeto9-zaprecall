@@ -1,14 +1,17 @@
 import styled from "styled-components"
+import questions from "./questions"
 
-export default function Footer() {
+export default function Footer({ answerCounter }) {
   return (
     <FooterCompleted>
-      <ContainerButtons>
-        <button className="colorRed">Não lembrei</button>
-        <button className="colorYellow">Quase não lembrei</button>
-        <button className="colorGreen">Zap!</button>
-      </ContainerButtons>
-      <h1>0/4 concluídos</h1>
+      <h1>
+        {answerCounter.length}/{questions.length} concluídos
+      </h1>
+      <Icons>
+        {answerCounter.map((e) => (
+          <img src={e} alt="icon" />
+        ))}
+      </Icons>
     </FooterCompleted>
   )
 }
@@ -29,42 +32,14 @@ const FooterCompleted = styled.div`
   font-size: 18px;
   color: #333333;
   h1 {
-    padding-bottom: 20px;
+    padding-bottom: 10px;
+    padding-top: 20px;
   }
 `
-
-const ContainerButtons = styled.div`
-  width: 100%;
+const Icons = styled.div`
   display: flex;
-  height: 50px;
-  margin: 20px;
-  justify-content: space-around;
-
-  button {
-    width: 90px;
-    font-family: "Recursive";
-    font-style: normal;
-    font-weight: 400;
-    font-size: 12px;
-    line-height: 14px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    text-align: center;
-    color: #ffffff;
-    border-radius: 5px;
-    border: none;
-    padding: 5px;
-    cursor: pointer;
-  }
-  .colorGreen {
-    background-color: #2fbe34;
-  }
-  .colorYellow {
-    background-color: #ff922e;
-  }
-  .colorRed {
-    background-color: #ff3030;
+  margin-bottom: 10px;
+  img {
+    margin-left: 5px;
   }
 `
-
