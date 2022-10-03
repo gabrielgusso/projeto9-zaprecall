@@ -1,9 +1,9 @@
 import styled from "styled-components"
 import questions from "./questions"
 
-export default function Footer({ answerCounter }) {
+export default function Footer({ answerCounter, displayComponents }) {
   return (
-    <FooterCompleted>
+    <FooterCompleted displayComponents={displayComponents}>
       <h1>
         {answerCounter.length}/{questions.length} concluídos
       </h1>
@@ -23,7 +23,7 @@ const FooterCompleted = styled.div`
   left: 0;
   width: 100%;
   min-height: 50px;
-  display: flex;
+  display: ${porps => porps.displayComponents};
   flex-direction: column;
   align-items: center;
   justify-content: center;
